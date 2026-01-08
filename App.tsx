@@ -18,10 +18,16 @@ import {
   Calendar as CalendarIcon,
   BookOpen,
   Trash2,
-  Wallet
+  Wallet,
+  Lock
 } from 'lucide-react';
 
 const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('tf_auth') === 'true';
+  });
+  const [passcodeInput, setPasscodeInput] = useState('');
+  
   const [trades, setTrades] = useState<Trade[]>(() => {
     const saved = localStorage.getItem('tradeflow_trades');
     return saved ? JSON.parse(saved) : [];
@@ -43,6 +49,53 @@ const App: React.FC = () => {
   }, [startingBalance]);
 
   const metrics = useMemo(() => calculateMetrics(trades, startingBalance), [trades, startingBalance]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Use the custom passcode provided by the user. 
+    // If the environment variable APP_PASSCODE is set in Vercel, it takes priority.
+    const masterPass = process.env.APP_PASSCODE || "zxcvbnm12W+#!"; 
+    if (passcodeInput === masterPass) {
+      setIsAuthenticated(true);
+      localStorage.setItem('tf_auth', 'true');
+    } else {
+      alert("Invalid credentials. Please try again.");
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('tf_auth');
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl text-center space-y-6">
+          <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-400 mx-auto">
+            <Lock size={32} />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-white tracking-tight">Access Restricted</h1>
+            <p className="text-slate-500 text-sm">This journal is private. Enter your security key.</p>
+          </div>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <input 
+              type="password"
+              placeholder="Security Passcode"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-center tracking-widest"
+              value={passcodeInput}
+              onChange={(e) => setPasscodeInput(e.target.value)}
+              autoFocus
+            />
+            <button className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
+              Unlock Terminal
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   const addTrade = (trade: Trade) => {
     setTrades([trade, ...trades]);
@@ -168,15 +221,24 @@ const App: React.FC = () => {
             </div>
           </div>
           
-          {trades.length > 0 && (
+          <div className="space-y-2">
+            {trades.length > 0 && (
+              <button 
+                onClick={clearAllTrades}
+                className="w-full flex items-center justify-center space-x-2 py-2 text-[10px] font-bold uppercase tracking-widest text-rose-500/60 hover:text-rose-400 transition-colors"
+              >
+                <Trash2 size={12} />
+                <span>Clear All Data</span>
+              </button>
+            )}
             <button 
-              onClick={clearAllTrades}
-              className="w-full flex items-center justify-center space-x-2 py-2 text-[10px] font-bold uppercase tracking-widest text-rose-500/60 hover:text-rose-400 transition-colors"
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center space-x-2 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
             >
-              <Trash2 size={12} />
-              <span>Clear All Data</span>
+              <Lock size={12} />
+              <span>Lock App</span>
             </button>
-          )}
+          </div>
         </div>
       </nav>
 
