@@ -52,8 +52,6 @@ const App: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Use the custom passcode provided by the user. 
-    // If the environment variable APP_PASSCODE is set in Vercel, it takes priority.
     const masterPass = process.env.APP_PASSCODE || "zxcvbnm12W+#!"; 
     if (passcodeInput === masterPass) {
       setIsAuthenticated(true);
@@ -66,6 +64,54 @@ const App: React.FC = () => {
   const handleLogout = () => {
     setIsAuthenticated(false);
     localStorage.removeItem('tf_auth');
+  };
+
+  const addTrade = (trade: Trade) => {
+    setTrades(prev => [trade, ...prev]);
+    if (activeTab === 'add') {
+      setActiveTab('dashboard');
+    }
+  };
+
+  const updateTrade = (updatedTrade: Trade) => {
+    setTrades(prev => prev.map(t => t.id === updatedTrade.id ? updatedTrade : t));
+  };
+
+  const syncTrades = (newTrades: Trade[]) => {
+    const existingIds = new Set(trades.map(t => t.externalId).filter(Boolean));
+    const uniqueNewTrades = newTrades.filter(t => !existingIds.has(t.externalId));
+    
+    if (uniqueNewTrades.length > 0) {
+      setTrades(prev => [...uniqueNewTrades, ...prev]);
+      return uniqueNewTrades.length;
+    }
+    return 0;
+  };
+
+  const deleteTrade = (id: string) => {
+    setTrades(prev => prev.filter(t => t.id !== id));
+  };
+
+  const clearAllTrades = () => {
+    if (window.confirm("Are you sure you want to clear all trade history, settings, and integrations? This action cannot be undone.")) {
+      // 1. Reset component state
+      setTrades([]);
+      setStartingBalance(0);
+      
+      // 2. Clear all app-specific keys from localStorage
+      localStorage.removeItem('tradeflow_trades');
+      localStorage.removeItem('tradeflow_balance');
+      localStorage.removeItem('tradovate_config');
+      
+      // 3. Reset view
+      setActiveTab('dashboard');
+      
+      // 4. Force state update for effects to catch up if needed
+      setTimeout(() => {
+         setTrades([]);
+         setStartingBalance(0);
+      }, 0);
+    }
   };
 
   if (!isAuthenticated) {
@@ -97,42 +143,8 @@ const App: React.FC = () => {
     );
   }
 
-  const addTrade = (trade: Trade) => {
-    setTrades([trade, ...trades]);
-    if (activeTab === 'add') {
-      setActiveTab('dashboard');
-    }
-  };
-
-  const updateTrade = (updatedTrade: Trade) => {
-    setTrades(prev => prev.map(t => t.id === updatedTrade.id ? updatedTrade : t));
-  };
-
-  const syncTrades = (newTrades: Trade[]) => {
-    const existingIds = new Set(trades.map(t => t.externalId).filter(Boolean));
-    const uniqueNewTrades = newTrades.filter(t => !existingIds.has(t.externalId));
-    
-    if (uniqueNewTrades.length > 0) {
-      setTrades(prev => [...uniqueNewTrades, ...prev]);
-      return uniqueNewTrades.length;
-    }
-    return 0;
-  };
-
-  const deleteTrade = (id: string) => {
-    setTrades(trades.filter(t => t.id !== id));
-  };
-
-  const clearAllTrades = () => {
-    if (window.confirm("Are you sure you want to clear all trade history? This cannot be undone.")) {
-      setTrades([]);
-      setActiveTab('dashboard');
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-950 text-slate-100">
-      {/* Navigation Sidebar */}
       <nav className="w-full md:w-64 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col">
         <div className="p-6">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
@@ -222,18 +234,20 @@ const App: React.FC = () => {
           </div>
           
           <div className="space-y-2">
-            {trades.length > 0 && (
+            {(trades.length > 0 || startingBalance !== 0) && (
               <button 
+                type="button"
                 onClick={clearAllTrades}
-                className="w-full flex items-center justify-center space-x-2 py-2 text-[10px] font-bold uppercase tracking-widest text-rose-500/60 hover:text-rose-400 transition-colors"
+                className="w-full flex items-center justify-center space-x-2 py-2 text-[10px] font-bold uppercase tracking-widest text-rose-500/60 hover:text-rose-400 transition-colors cursor-pointer"
               >
                 <Trash2 size={12} />
                 <span>Clear All Data</span>
               </button>
             )}
             <button 
+              type="button"
               onClick={handleLogout}
-              className="w-full flex items-center justify-center space-x-2 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
+              className="w-full flex items-center justify-center space-x-2 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors cursor-pointer"
             >
               <Lock size={12} />
               <span>Lock App</span>
@@ -242,7 +256,6 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto custom-scrollbar h-screen bg-[#020617]">
         <div className="max-w-7xl mx-auto p-4 md:p-8">
           {activeTab === 'dashboard' && <Dashboard metrics={metrics} trades={trades} />}

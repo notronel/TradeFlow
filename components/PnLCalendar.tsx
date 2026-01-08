@@ -66,7 +66,6 @@ const PnLCalendar: React.FC<Props> = ({ trades }) => {
       const dateStr = date.toISOString().split('T')[0];
       const data = dailyDataMap[dateStr];
       
-      // Get week number within the view
       const firstDay = new Date(year, month, 1).getDay();
       const weekIndex = Math.floor((day + firstDay - 1) / 7);
       
@@ -95,18 +94,16 @@ const PnLCalendar: React.FC<Props> = ({ trades }) => {
   }, [selectedDateStr, dailyDataMap]);
 
   const calendarDays = [];
-  // Filling empty starts
   for (let i = 0; i < startDay; i++) {
-    if (i !== 6) { // Hide Saturday padding
+    if (i !== 6) {
        calendarDays.push(<div key={`pad-${i}`} className="h-20 md:h-28 bg-slate-900/10 border border-slate-800/10 rounded-xl"></div>);
     }
   }
 
-  // Actual days
   for (let day = 1; day <= totalDays; day++) {
     const date = new Date(year, month, day);
     const dayOfWeek = date.getDay();
-    if (dayOfWeek === 6) continue; // Skip Saturdays globally
+    if (dayOfWeek === 6) continue;
 
     const dateStr = date.toISOString().split('T')[0];
     const data = dailyDataMap[dateStr];
@@ -141,22 +138,17 @@ const PnLCalendar: React.FC<Props> = ({ trades }) => {
       </button>
     );
 
-    // After Friday (5), inject the weekly PnL summary
     if (dayOfWeek === 5 || day === totalDays) {
       const weekIndex = Math.floor((day + startDay - 1) / 7);
       const weekTotal = weeklyPnLs[weekIndex] || 0;
-      
-      // If we are at the end of a week (Friday) or the end of the month
-      // We push the weekly total card if it hasn't been pushed for this week yet.
-      // We check if the next day is a new week or it's the absolute end.
       const isNextDayNewWeek = day === totalDays || new Date(year, month, day + 1).getDay() === 0 || new Date(year, month, day + 1).getDay() === 6;
       
       if (isNextDayNewWeek) {
           calendarDays.push(
-            <div key={`week-${weekIndex}`} className="h-20 md:h-28 rounded-xl p-2 flex flex-col justify-center border-2 border-indigo-500/20 bg-indigo-500/5 items-center relative overflow-hidden group">
-               <div className="absolute top-2 left-2 text-[8px] font-black text-indigo-500/50 uppercase tracking-widest">Wk Total</div>
-               <TrendingUpIcon size={14} className="text-indigo-500/20 absolute bottom-2 right-2 group-hover:scale-110 transition-transform" />
-               <div className={`text-xs md:text-lg font-black truncate ${weekTotal >= 0 ? 'text-indigo-400' : 'text-rose-400'}`}>
+            <div key={`week-${weekIndex}`} className={`h-20 md:h-28 rounded-xl p-2 flex flex-col justify-center border-2 items-center relative overflow-hidden group transition-colors ${weekTotal >= 0 ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-rose-500/20 bg-rose-500/5'}`}>
+               <div className={`absolute top-2 left-2 text-[8px] font-black uppercase tracking-widest ${weekTotal >= 0 ? 'text-emerald-500/50' : 'text-rose-500/50'}`}>Wk PnL</div>
+               <TrendingUpIcon size={14} className={`${weekTotal >= 0 ? 'text-emerald-500/20' : 'text-rose-500/20'} absolute bottom-2 right-2 group-hover:scale-110 transition-transform`} />
+               <div className={`text-xs md:text-lg font-black truncate ${weekTotal >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                 {formatCurrency(weekTotal)}
               </div>
             </div>
@@ -190,8 +182,8 @@ const PnLCalendar: React.FC<Props> = ({ trades }) => {
       </div>
 
       <div className="grid grid-cols-7 gap-2 md:gap-3 text-center">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Weekly Summary'].map(d => (
-          <div key={d} className={`text-[10px] font-black uppercase tracking-widest py-2 ${d === 'Weekly Summary' ? 'text-indigo-400' : 'text-slate-600'}`}>{d}</div>
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Weekly PnL'].map(d => (
+          <div key={d} className={`text-[10px] font-black uppercase tracking-widest py-2 ${d === 'Weekly PnL' ? 'text-emerald-400' : 'text-slate-600'}`}>{d}</div>
         ))}
         {calendarDays}
       </div>
