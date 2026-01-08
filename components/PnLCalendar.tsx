@@ -29,8 +29,6 @@ const PnLCalendar: React.FC<Props> = ({ trades }) => {
   // Pre-calculate all daily data once
   const dailyDataMap = useMemo(() => {
     const map: Record<string, { pnl: number, count: number, risk: number, wins: number, journalEntry?: Trade }> = {};
-    
-    // Sort trades by date ascending for chronological consistency calculations
     const sorted = [...trades].sort((a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime());
 
     sorted.forEach(trade => {
@@ -61,11 +59,10 @@ const PnLCalendar: React.FC<Props> = ({ trades }) => {
 
   const selectedData = useMemo(() => selectedDateStr ? dailyDataMap[selectedDateStr] : null, [selectedDateStr, dailyDataMap]);
 
-  // Derived metrics for selected day: EOD Consistency
+  // Derived metrics for selected day: EOD Consistency (Highest Day / Total Profit)
   const dailyMetrics = useMemo(() => {
     if (!selectedDateStr) return null;
     
-    // Filter all daily profits up to the selected date
     const historyUpToDate = Object.entries(dailyDataMap)
       .filter(([date]) => date <= selectedDateStr)
       .map(([_, data]) => (data as { pnl: number }).pnl);
@@ -83,8 +80,7 @@ const PnLCalendar: React.FC<Props> = ({ trades }) => {
     return { 
       rrFactor, 
       consistencyPct: consistencyPct.toFixed(1),
-      isConsistent,
-      totalProfit
+      isConsistent
     };
   }, [selectedDateStr, dailyDataMap]);
 
@@ -111,7 +107,7 @@ const PnLCalendar: React.FC<Props> = ({ trades }) => {
         <span className={`absolute top-2 left-2 text-[10px] font-bold ${isSelected ? 'text-indigo-400' : 'text-slate-600'}`}>{day}</span>
         {data ? (
           <div className="w-full text-center space-y-0.5">
-            <div className={`text-sm md:text-lg font-black truncate ${data.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+            <div className={`text-sm md:text-xl font-black truncate ${data.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
               {formatCurrency(data.pnl)}
             </div>
             <div className="text-[9px] text-slate-500 font-bold uppercase tracking-tight">

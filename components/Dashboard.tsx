@@ -1,5 +1,5 @@
 
-import { TrendingUp, Target, BarChart3, Activity, Wallet, Zap, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { TrendingUp, Target, BarChart3, Wallet, ShieldCheck, ShieldAlert } from 'lucide-react';
 import React from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Trade, TradingMetrics } from '../types';
@@ -90,7 +90,7 @@ const Dashboard: React.FC<Props> = ({ metrics, trades }) => {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-              <XAxis dataKey="name" stroke="#64748b" tick={{fontSize: 10}} label={{ value: 'Trade #', position: 'insideBottomRight', offset: -5, fontSize: 10, fill: '#64748b' }} />
+              <XAxis dataKey="name" stroke="#64748b" tick={{fontSize: 10}} />
               <YAxis 
                 stroke="#64748b" 
                 tick={{fontSize: 10}} 
@@ -112,34 +112,6 @@ const Dashboard: React.FC<Props> = ({ metrics, trades }) => {
               />
             </AreaChart>
           </ResponsiveContainer>
-        </div>
-      </div>
-      
-      {/* Recent Insights Preview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-           <h3 className="text-lg font-semibold mb-4">Risk Profile</h3>
-           <div className="space-y-4">
-              <div className="flex justify-between items-center text-sm text-slate-400">
-                <span>Total Net PnL</span>
-                <span className={metrics.totalPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}>{formatCurrency(metrics.totalPnL)}</span>
-              </div>
-              <div className="w-full bg-slate-800 rounded-full h-2">
-                <div 
-                  className="bg-indigo-500 h-2 rounded-full" 
-                  style={{ width: `${Math.min(metrics.winRate, 100)}%` }}
-                ></div>
-              </div>
-              <p className="text-xs text-slate-500 italic">"Focus on maintaining a high RR even when win rate fluctuates."</p>
-           </div>
-        </div>
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-           <h3 className="text-lg font-semibold mb-4">Trading Strengths</h3>
-           <ul className="space-y-3 text-sm text-slate-400">
-             <li className="flex items-center"><span className="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>Consistent risk application</li>
-             <li className="flex items-center"><span className="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>High discipline on exit plans</li>
-             <li className="flex items-center"><span className="w-2 h-2 rounded-full bg-slate-600 mr-2"></span>Awaiting more data for analysis...</li>
-           </ul>
         </div>
       </div>
     </div>
