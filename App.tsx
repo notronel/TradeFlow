@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Trade, TradingMetrics } from './types';
 import { calculateMetrics } from './utils/calculations';
@@ -116,20 +115,20 @@ const App: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl text-center space-y-6">
-          <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-400 mx-auto">
+      <div className="min-h-screen bg-gray-600 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-gray-700 border border-gray-500 rounded-3xl p-8 shadow-2xl text-center space-y-6">
+          <div className="w-16 h-16 bg-gray-800 rounded-2xl flex items-center justify-center text-indigo-400 mx-auto border border-gray-600">
             <Lock size={32} />
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-bold text-white tracking-tight">Access Restricted</h1>
-            <p className="text-slate-500 text-sm">This journal is private. Enter your security key.</p>
+            <p className="text-white text-sm">This journal is private. Enter your security key.</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <input 
               type="password"
               placeholder="Security Passcode"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-center tracking-widest"
+              className="w-full bg-gray-800 border border-gray-600 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-center tracking-widest text-white placeholder-gray-400"
               value={passcodeInput}
               onChange={(e) => setPasscodeInput(e.target.value)}
               autoFocus
@@ -144,17 +143,17 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-slate-950 text-slate-100">
-      <nav className="w-full md:w-64 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col">
+    <div className="min-h-screen flex flex-col md:flex-row bg-gray-600 text-gray-100">
+      <nav className="w-full md:w-64 bg-gray-700 border-b md:border-b-0 md:border-r border-gray-500 flex flex-col shadow-2xl">
         <div className="p-6">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-300 to-emerald-300 bg-clip-text text-transparent">
             TradeFlow Pro
           </h1>
-          <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-semibold">Institutional Grade Journal</p>
+          <p className="text-xs text-white mt-1 uppercase tracking-widest font-semibold">Institutional Grade Journal</p>
         </div>
 
         <div className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
-          <p className="px-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2">Analysis</p>
+          <p className="px-4 text-[10px] font-bold text-white uppercase tracking-widest mb-2">Analysis</p>
           <NavButton 
             active={activeTab === 'dashboard'} 
             onClick={() => setActiveTab('dashboard')} 
@@ -174,7 +173,7 @@ const App: React.FC = () => {
             label="Trade Journal" 
           />
           
-          <p className="px-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-6 mb-2">Operations</p>
+          <p className="px-4 text-[10px] font-bold text-white uppercase tracking-widest mt-6 mb-2">Operations</p>
           <NavButton 
             active={activeTab === 'add'} 
             onClick={() => setActiveTab('add')} 
@@ -188,7 +187,7 @@ const App: React.FC = () => {
             label="Trade History" 
           />
           
-          <p className="px-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest mt-6 mb-2">Advanced</p>
+          <p className="px-4 text-[10px] font-bold text-white uppercase tracking-widest mt-6 mb-2">Advanced</p>
           <NavButton 
             active={activeTab === 'ai'} 
             onClick={() => setActiveTab('ai')} 
@@ -203,31 +202,31 @@ const App: React.FC = () => {
           />
         </div>
 
-        <div className="p-4 border-t border-slate-800 space-y-4">
+        <div className="p-4 border-t border-gray-500 space-y-4">
           <div className="space-y-2">
-            <p className="px-1 text-[10px] font-bold text-slate-600 uppercase tracking-widest">Account Config</p>
+            <p className="px-1 text-[10px] font-bold text-white uppercase tracking-widest">Account Config</p>
             <div className="relative group">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white group-focus-within:text-indigo-300 transition-colors">
                 <Wallet size={14} />
               </div>
               <input 
                 type="number"
                 placeholder="Initial Capital"
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
+                className="w-full bg-gray-800 border border-gray-600 rounded-lg pl-9 pr-3 py-2 text-xs font-bold outline-none focus:ring-1 focus:ring-indigo-500 text-white placeholder-gray-500 transition-all focus:border-indigo-500"
                 value={startingBalance === 0 ? '' : startingBalance}
                 onChange={(e) => setStartingBalance(Number(e.target.value))}
               />
             </div>
           </div>
 
-          <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700/50 space-y-1">
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Net Account Value</p>
-            <p className={`text-lg font-black ${metrics.totalPnL >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>
+          <div className="bg-gray-800 rounded-lg p-3 border border-gray-600 space-y-1">
+            <p className="text-[10px] font-bold text-white uppercase tracking-wider">Net Account Value</p>
+            <p className={`text-lg font-black ${metrics.totalPnL >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
               {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(metrics.currentBalance)}
             </p>
-            <div className="flex justify-between items-center text-[9px] font-bold text-slate-500 uppercase tracking-tight pt-1 border-t border-slate-700/50">
+            <div className="flex justify-between items-center text-[9px] font-bold text-white uppercase tracking-tight pt-1 border-t border-gray-600">
               <span>Total PnL</span>
-              <span className={metrics.totalPnL >= 0 ? 'text-emerald-500' : 'text-rose-500'}>
+              <span className={metrics.totalPnL >= 0 ? 'text-emerald-300' : 'text-rose-300'}>
                 {metrics.totalPnL >= 0 ? '+' : ''}{metrics.totalPnL.toFixed(2)}
               </span>
             </div>
@@ -238,7 +237,7 @@ const App: React.FC = () => {
               <button 
                 type="button"
                 onClick={clearAllTrades}
-                className="w-full flex items-center justify-center space-x-2 py-2 text-[10px] font-bold uppercase tracking-widest text-rose-500/60 hover:text-rose-400 transition-colors cursor-pointer"
+                className="w-full flex items-center justify-center space-x-2 py-2 text-[10px] font-bold uppercase tracking-widest text-rose-400 hover:text-rose-300 transition-colors cursor-pointer hover:bg-gray-600 rounded-lg"
               >
                 <Trash2 size={12} />
                 <span>Clear All Data</span>
@@ -247,7 +246,7 @@ const App: React.FC = () => {
             <button 
               type="button"
               onClick={handleLogout}
-              className="w-full flex items-center justify-center space-x-2 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors cursor-pointer"
+              className="w-full flex items-center justify-center space-x-2 py-2 text-[10px] font-bold uppercase tracking-widest text-white hover:text-gray-200 transition-colors cursor-pointer hover:bg-gray-600 rounded-lg"
             >
               <Lock size={12} />
               <span>Lock App</span>
@@ -256,7 +255,7 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      <main className="flex-1 overflow-y-auto custom-scrollbar h-screen bg-[#020617]">
+      <main className="flex-1 overflow-y-auto custom-scrollbar h-screen bg-gray-600">
         <div className="max-w-7xl mx-auto p-4 md:p-8">
           {activeTab === 'dashboard' && <Dashboard metrics={metrics} trades={trades} />}
           {activeTab === 'calendar' && <PnLCalendar trades={trades} />}
@@ -283,8 +282,8 @@ const NavButton: React.FC<NavButtonProps> = ({ active, onClick, icon, label }) =
     onClick={onClick}
     className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${
       active 
-        ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-600/30 shadow-lg shadow-indigo-600/5' 
-        : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+        ? 'bg-gray-600 text-indigo-300 border border-indigo-500/30 shadow-sm' 
+        : 'text-white hover:bg-gray-600 hover:text-white'
     }`}
   >
     {icon}

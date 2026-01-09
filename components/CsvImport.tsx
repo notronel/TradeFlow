@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import Papa from 'papaparse';
 import { Trade, TradeSide } from '../types';
@@ -150,20 +149,20 @@ const CsvImport: React.FC<Props> = ({ onImport }) => {
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+    <div className="bg-gray-700 border border-gray-600 rounded-2xl p-6 shadow-xl space-y-4">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-indigo-900/50 rounded-xl flex items-center justify-center border border-indigo-500/20">
             <FileSpreadsheet className="text-indigo-400" size={24} />
           </div>
           <div>
-            <h3 className="font-bold text-lg">CSV Bulk Import</h3>
-            <p className="text-sm text-slate-500">Enhanced for accounting-style formatting</p>
+            <h3 className="font-bold text-lg text-white">CSV Bulk Import</h3>
+            <p className="text-sm text-white">Enhanced for accounting-style formatting</p>
           </div>
         </div>
         <button 
           onClick={downloadTemplate}
-          className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center bg-indigo-400/10 px-3 py-2 rounded-lg transition-colors"
+          className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center bg-gray-800 px-3 py-2 rounded-lg transition-colors border border-gray-600"
         >
           <Download size={14} className="mr-2" />
           Template
@@ -173,7 +172,7 @@ const CsvImport: React.FC<Props> = ({ onImport }) => {
       <div 
         onClick={() => fileInputRef.current?.click()}
         className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
-          isProcessing ? 'border-slate-700 bg-slate-800/50' : 'border-slate-800 hover:border-indigo-500/50 hover:bg-slate-800/30'
+          isProcessing ? 'border-gray-500 bg-gray-600' : 'border-gray-600 hover:border-indigo-500 hover:bg-gray-800'
         }`}
       >
         <input 
@@ -183,18 +182,18 @@ const CsvImport: React.FC<Props> = ({ onImport }) => {
           ref={fileInputRef} 
           onChange={handleFileUpload}
         />
-        <FileUp className={`mx-auto mb-3 ${isProcessing ? 'animate-bounce text-slate-500' : 'text-slate-600'}`} size={32} />
-        <p className="text-sm font-medium text-slate-300">
+        <FileUp className={`mx-auto mb-3 ${isProcessing ? 'animate-bounce text-gray-500' : 'text-white'}`} size={32} />
+        <p className="text-sm font-medium text-white">
           {isProcessing ? 'Processing data...' : 'Click to upload or drag & drop CSV'}
         </p>
-        <p className="text-xs text-slate-500 mt-1">Handles $(PnL) and -PnL formats automatically.</p>
+        <p className="text-xs text-white mt-1">Handles $(PnL) and -PnL formats automatically.</p>
       </div>
 
       {feedback && (
         <div className={`p-4 rounded-xl flex items-start space-x-3 animate-in fade-in slide-in-from-top-2 duration-300 ${
-          feedback.type === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/50' : 
-          feedback.type === 'INFO' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/50' :
-          'bg-rose-500/10 text-rose-400 border border-rose-500/50'
+          feedback.type === 'SUCCESS' ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-500/20' : 
+          feedback.type === 'INFO' ? 'bg-indigo-900/30 text-indigo-400 border border-indigo-500/20' :
+          'bg-rose-900/30 text-rose-400 border border-rose-500/20'
         }`}>
           <div className="mt-0.5">
             {feedback.type === 'SUCCESS' ? <CheckCircle2 size={18} /> : 

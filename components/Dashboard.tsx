@@ -1,4 +1,3 @@
-
 import { TrendingUp, Target, BarChart3, Wallet, ShieldCheck, ShieldAlert } from 'lucide-react';
 import React from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -34,8 +33,8 @@ const Dashboard: React.FC<Props> = ({ metrics, trades }) => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <header className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold">Trading Overview</h2>
-          <p className="text-slate-400 mt-1">Real-time performance metrics and equity growth.</p>
+          <h2 className="text-3xl font-bold text-white">Trading Overview</h2>
+          <p className="text-white mt-1">Real-time performance metrics and equity growth.</p>
         </div>
       </header>
 
@@ -44,39 +43,39 @@ const Dashboard: React.FC<Props> = ({ metrics, trades }) => {
         <MetricCard 
           title="Account Balance" 
           value={formatCurrencyPlain(metrics.currentBalance)} 
-          icon={<Wallet className="text-indigo-400" />} 
+          icon={<Wallet className="text-indigo-300" />} 
           subValue={`Starting: ${formatCurrencyPlain(metrics.startingBalance)}`}
           highlight={metrics.totalPnL > 0 ? 'positive' : metrics.totalPnL < 0 ? 'negative' : 'neutral'}
         />
         <MetricCard 
           title="Win Rate" 
           value={`${metrics.winRate.toFixed(1)}%`} 
-          icon={<Target className="text-emerald-400" />} 
+          icon={<Target className="text-emerald-300" />} 
           subValue={`${metrics.totalTrades} Total Trades`}
         />
         <MetricCard 
           title="Avg Win / Loss" 
           value={`${formatCurrency(metrics.avgWin)} / ${formatCurrency(metrics.avgLoss)}`} 
-          icon={<BarChart3 className="text-amber-400" />}
+          icon={<BarChart3 className="text-amber-300" />}
           subValue={`Profit Factor: ${metrics.profitFactor.toFixed(2)}`}
         />
         <MetricCard 
           title="Consistency" 
           value={`${metrics.consistencyPct.toFixed(1)}%`} 
-          icon={metrics.isConsistent ? <ShieldCheck className="text-emerald-400" /> : <ShieldAlert className="text-rose-400" />}
+          icon={metrics.isConsistent ? <ShieldCheck className="text-emerald-300" /> : <ShieldAlert className="text-rose-300" />}
           subValue={metrics.isConsistent ? "Within 40% rule" : "Breaches 40% rule"}
           highlight={metrics.isConsistent ? 'positive' : 'negative'}
         />
       </div>
 
       {/* Chart Section */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+      <div className="bg-gray-700 border border-gray-500 rounded-xl p-6 shadow-xl">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold flex items-center">
-            <TrendingUp className="mr-2 text-indigo-400" size={20} />
+          <h3 className="text-lg font-semibold flex items-center text-white">
+            <TrendingUp className="mr-2 text-indigo-300" size={20} />
             Equity Growth (Portfolio Value)
           </h3>
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-widest bg-slate-800 px-3 py-1 rounded-full">
+          <div className="text-xs font-bold text-white uppercase tracking-widest bg-gray-800 px-3 py-1 rounded-full border border-gray-600">
             Starting at {formatCurrencyPlain(metrics.startingBalance)}
           </div>
         </div>
@@ -85,27 +84,27 @@ const Dashboard: React.FC<Props> = ({ metrics, trades }) => {
             <AreaChart data={equityCurve}>
               <defs>
                 <linearGradient id="colorPnL" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#818cf8" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-              <XAxis dataKey="name" stroke="#64748b" tick={{fontSize: 10}} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#9ca3af" vertical={false} />
+              <XAxis dataKey="name" stroke="#e5e7eb" tick={{fontSize: 10}} />
               <YAxis 
-                stroke="#64748b" 
+                stroke="#e5e7eb" 
                 tick={{fontSize: 10}} 
                 tickFormatter={(val) => `$${val}`}
                 domain={['auto', 'auto']}
               />
               <Tooltip 
-                contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
-                itemStyle={{ color: '#f8fafc' }}
+                contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px', color: '#f3f4f6' }}
+                itemStyle={{ color: '#f3f4f6' }}
                 formatter={(value) => [formatCurrencyPlain(Number(value)), 'Portfolio Value']}
               />
               <Area 
                 type="monotone" 
                 dataKey="balance" 
-                stroke="#6366f1" 
+                stroke="#818cf8" 
                 strokeWidth={3}
                 fillOpacity={1} 
                 fill="url(#colorPnL)" 
@@ -127,21 +126,21 @@ const MetricCard: React.FC<{
 }> = ({ 
   title, value, icon, subValue, highlight = 'neutral'
 }) => (
-  <div className={`bg-slate-900 border rounded-xl p-5 hover:border-slate-700 transition-colors ${
-    highlight === 'positive' ? 'border-emerald-500/20' : 
-    highlight === 'negative' ? 'border-rose-500/20' : 
-    'border-slate-800'
+  <div className={`bg-gray-700 border rounded-xl p-5 hover:border-gray-500 transition-colors ${
+    highlight === 'positive' ? 'border-emerald-500/30 bg-emerald-900/10' : 
+    highlight === 'negative' ? 'border-rose-500/30 bg-rose-900/10' : 
+    'border-gray-500'
   }`}>
     <div className="flex justify-between items-start mb-2">
-      <span className="text-slate-400 text-sm font-medium">{title}</span>
-      <div className="p-2 bg-slate-800 rounded-lg">{icon}</div>
+      <span className="text-white text-sm font-medium">{title}</span>
+      <div className="p-2 bg-gray-800 rounded-lg shadow-sm border border-gray-600">{icon}</div>
     </div>
     <div className={`text-2xl font-bold mb-1 ${
-      highlight === 'positive' ? 'text-emerald-400' : 
-      highlight === 'negative' ? 'text-rose-400' : 
-      ''
+      highlight === 'positive' ? 'text-emerald-300' : 
+      highlight === 'negative' ? 'text-rose-300' : 
+      'text-white'
     }`}>{value}</div>
-    <div className="text-xs text-slate-500 font-medium">{subValue}</div>
+    <div className="text-xs text-white font-medium">{subValue}</div>
   </div>
 );
 
