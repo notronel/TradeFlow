@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Trade } from '../types';
 import { formatCurrency, formatCurrencyPlain } from '../utils/calculations';
 import { 
@@ -12,19 +12,43 @@ import {
   Zap,
   CheckCircle2,
   AlertTriangle,
-  TrendingUp as TrendingUpIcon
+  TrendingUp as TrendingUpIcon,
+  Pencil,
+  Plus,
+  Save,
+  X,
+  Bold,
+  Italic,
+  Underline,
+  Heading1,
+  Heading2,
+  Type,
+  List,
+  ListOrdered,
+  AlignLeft,
+  AlignCenter,
+  AlignRight
 } from 'lucide-react';
 
 interface Props {
   trades: Trade[];
+  onAddEntry: (trade: Trade) => void;
+  onUpdateEntry: (trade: Trade) => void;
 }
 
-const PnLCalendar: React.FC<Props> = ({ trades }) => {
+const PnLCalendar: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDateStr, setSelectedDateStr] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const editorRef = useRef<HTMLDivElement>(null);
 
   const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
   const firstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
+
+  // Reset editing state when a new date is selected
+  useEffect(() => {
+    setIsEditing(false);
+  }, [selectedDateStr]);
 
   // Pre-calculate all daily data once
   const dailyDataMap = useMemo(() => {
@@ -92,6 +116,52 @@ const PnLCalendar: React.FC<Props> = ({ trades }) => {
     return { rrFactor, consistencyPct: consistencyPct.toFixed(1), isConsistent };
   }, [selectedDateStr, dailyDataMap]);
 
+  const execCommand = (command: string, value?: string) => {
+    document.execCommand(command, false, value);
+    editorRef.current?.focus();
+  };
+
+  const handleStartEdit = () => {
+    setIsEditing(true);
+    // Defer setting content to ensure ref is mounted
+    setTimeout(() => {
+      if (editorRef.current) {
+        editorRef.current.innerHTML = selectedData?.journalEntry?.tradingPlan || '';
+      }
+    }, 0);
+  };
+
+  const handleSaveEntry = () => {
+    if (!selectedDateStr) return;
+    const content = editorRef.current?.innerHTML || '';
+    const existingEntry = selectedData?.journalEntry;
+
+    if (existingEntry) {
+      onUpdateEntry({ ...existingEntry, tradingPlan: content });
+    } else {
+      const newEntry: Trade = {
+        id: crypto.randomUUID(),
+        symbol: 'JOURNAL',
+        side: 'LONG',
+        status: 'CLOSED',
+        entryPrice: 0,
+        exitPrice: 0,
+        quantity: 0,
+        pnl: 0,
+        fees: 0,
+        riskAmount: 0,
+        entryDate: new Date(selectedDateStr + 'T12:00:00').toISOString(),
+        tradingPlan: content,
+        analysis: '',
+        results: '',
+        lessons: '',
+        source: 'MANUAL'
+      };
+      onAddEntry(newEntry);
+    }
+    setIsEditing(false);
+  };
+
   const calendarDays = [];
   for (let i = 0; i < startDay; i++) {
     if (i !== 6) {
@@ -149,11 +219,34 @@ const PnLCalendar: React.FC<Props> = ({ trades }) => {
       const isNextDayNewWeek = day === totalDays || new Date(year, month, day + 1).getDay() === 0 || new Date(year, month, day + 1).getDay() === 6;
       
       if (isNextDayNewWeek) {
+          let containerClass = '';
+          let labelClass = '';
+          let iconClass = '';
+          let valueClass = '';
+
+          if (weekTotal > 0) {
+              containerClass = 'border-emerald-500/30 bg-emerald-900/20';
+              labelClass = 'text-emerald-400/50';
+              iconClass = 'text-emerald-400/20';
+              valueClass = 'text-emerald-400';
+          } else if (weekTotal < 0) {
+              containerClass = 'border-rose-500/30 bg-rose-900/20';
+              labelClass = 'text-rose-400/50';
+              iconClass = 'text-rose-400/20';
+              valueClass = 'text-rose-400';
+          } else {
+              // Neutral (0)
+              containerClass = 'border-gray-600 bg-gray-700/50';
+              labelClass = 'text-gray-400/50';
+              iconClass = 'text-gray-400/20';
+              valueClass = 'text-white';
+          }
+
           calendarDays.push(
-            <div key={`week-${weekIndex}`} className={`h-20 md:h-28 rounded-xl p-2 flex flex-col justify-center border-2 items-center relative overflow-hidden group transition-colors ${weekTotal >= 0 ? 'border-emerald-500/30 bg-emerald-900/20' : 'border-rose-500/30 bg-rose-900/20'}`}>
-               <div className={`absolute top-2 left-2 text-[8px] font-black uppercase tracking-widest ${weekTotal >= 0 ? 'text-emerald-400/50' : 'text-rose-400/50'}`}>Wk PnL</div>
-               <TrendingUpIcon size={14} className={`${weekTotal >= 0 ? 'text-emerald-400/20' : 'text-rose-400/20'} absolute bottom-2 right-2 group-hover:scale-110 transition-transform`} />
-               <div className={`text-sm md:text-xl font-black truncate ${weekTotal >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+            <div key={`week-${weekIndex}`} className={`h-20 md:h-28 rounded-xl p-2 flex flex-col justify-center border-2 items-center relative overflow-hidden group transition-colors ${containerClass}`}>
+               <div className={`absolute top-2 left-2 text-[8px] font-black uppercase tracking-widest ${labelClass}`}>Wk PnL</div>
+               <TrendingUpIcon size={14} className={`${iconClass} absolute bottom-2 right-2 group-hover:scale-110 transition-transform`} />
+               <div className={`text-sm md:text-xl font-black truncate ${valueClass}`}>
                 {formatCurrency(weekTotal)}
               </div>
             </div>
@@ -224,18 +317,75 @@ const PnLCalendar: React.FC<Props> = ({ trades }) => {
             </div>
 
             <div className="space-y-4">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-white flex items-center gap-2">
-                <History size={14} className="text-indigo-300" />
-                Narrative Details
-              </h4>
-              <div className="bg-gray-800 rounded-2xl p-6 border border-gray-600">
-                {selectedData?.journalEntry ? (
-                  <div 
-                    className="editor-content prose prose-invert prose-gray max-w-none text-white"
-                    dangerouslySetInnerHTML={{ __html: selectedData.journalEntry.tradingPlan }}
-                  />
+              <div className="flex items-center justify-between">
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-white flex items-center gap-2">
+                  <History size={14} className="text-indigo-300" />
+                  Narrative Details
+                </h4>
+                
+                {!isEditing && (
+                  <button 
+                    onClick={handleStartEdit}
+                    className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-300 hover:text-white bg-indigo-900/30 hover:bg-indigo-900/50 px-3 py-1.5 rounded-lg border border-indigo-500/20 transition-all"
+                  >
+                    {selectedData?.journalEntry ? <><Pencil size={12} /> Edit Entry</> : <><Plus size={12} /> Add Entry</>}
+                  </button>
+                )}
+              </div>
+              
+              <div className={`bg-gray-800 rounded-2xl p-6 border transition-all ${isEditing ? 'border-indigo-500 ring-1 ring-indigo-500/20' : 'border-gray-600'}`}>
+                {isEditing ? (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    <div className="flex flex-wrap gap-1 bg-gray-700 p-2 rounded-xl border border-gray-600">
+                      <ToolbarBtn onClick={() => execCommand('bold')} icon={<Bold size={14} />} title="Bold" />
+                      <ToolbarBtn onClick={() => execCommand('italic')} icon={<Italic size={14} />} title="Italic" />
+                      <ToolbarBtn onClick={() => execCommand('underline')} icon={<Underline size={14} />} title="Underline" />
+                      <div className="w-px h-5 bg-gray-600 mx-1 self-center" />
+                      <ToolbarBtn onClick={() => execCommand('formatBlock', 'H1')} icon={<Heading1 size={14} />} title="Heading 1" />
+                      <ToolbarBtn onClick={() => execCommand('formatBlock', 'H2')} icon={<Heading2 size={14} />} title="Heading 2" />
+                      <ToolbarBtn onClick={() => execCommand('formatBlock', 'P')} icon={<Type size={14} />} title="Text" />
+                      <div className="w-px h-5 bg-gray-600 mx-1 self-center" />
+                      <ToolbarBtn onClick={() => execCommand('insertUnorderedList')} icon={<List size={14} />} title="Bullets" />
+                      <ToolbarBtn onClick={() => execCommand('insertOrderedList')} icon={<ListOrdered size={14} />} title="Numbers" />
+                    </div>
+                    
+                    <div 
+                      ref={editorRef}
+                      contentEditable
+                      className="w-full bg-gray-900 min-h-[200px] rounded-xl p-4 text-sm leading-relaxed focus:outline-none text-white border border-gray-700 empty:before:content-[attr(data-placeholder)] empty:before:text-gray-500 editor-content"
+                      data-placeholder="Record your thoughts on today's price action..."
+                    />
+                    
+                    <div className="flex justify-end gap-2 pt-2">
+                      <button 
+                        onClick={() => setIsEditing(false)}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+                      >
+                        <X size={14} /> Cancel
+                      </button>
+                      <button 
+                        onClick={handleSaveEntry}
+                        className="flex items-center gap-1.5 px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all"
+                      >
+                        <Save size={14} /> Save Entry
+                      </button>
+                    </div>
+                  </div>
                 ) : (
-                  <p className="text-white italic py-8 text-center">No daily record exists for this date.</p>
+                  <>
+                    {selectedData?.journalEntry ? (
+                      <div 
+                        className="editor-content prose prose-invert prose-gray max-w-none text-white"
+                        dangerouslySetInnerHTML={{ __html: selectedData.journalEntry.tradingPlan }}
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-10 space-y-3 opacity-50">
+                        <History size={32} />
+                        <p className="text-white italic text-center">No narrative record exists for this date.</p>
+                        <button onClick={handleStartEdit} className="text-indigo-300 hover:text-white underline text-sm">Write one now</button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -254,6 +404,16 @@ const PnLCalendar: React.FC<Props> = ({ trades }) => {
     </div>
   );
 };
+
+const ToolbarBtn = ({ onClick, icon, title }: { onClick: () => void, icon: React.ReactNode, title: string }) => (
+  <button 
+    onClick={(e) => { e.preventDefault(); onClick(); }}
+    title={title}
+    className="p-1.5 rounded-lg hover:bg-gray-600 text-gray-300 hover:text-white transition-all"
+  >
+    {icon}
+  </button>
+);
 
 const SummaryCard = ({ icon, label, value, color, status, subtitle }: { icon: any, label: string, value: string, color: string, status?: React.ReactNode, subtitle?: string }) => (
   <div className="bg-gray-700 border border-gray-600 p-4 rounded-2xl flex flex-col justify-between h-full group hover:border-gray-500 transition-colors">

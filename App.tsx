@@ -258,7 +258,7 @@ const App: React.FC = () => {
       <main className="flex-1 overflow-y-auto custom-scrollbar h-screen bg-gray-600">
         <div className="max-w-7xl mx-auto p-4 md:p-8">
           {activeTab === 'dashboard' && <Dashboard metrics={metrics} trades={trades} />}
-          {activeTab === 'calendar' && <PnLCalendar trades={trades} />}
+          {activeTab === 'calendar' && <PnLCalendar trades={trades} onAddEntry={addTrade} onUpdateEntry={updateTrade} />}
           {activeTab === 'journal' && <JournalFeed trades={trades} onAddEntry={addTrade} onUpdateEntry={updateTrade} />}
           {activeTab === 'add' && <TradeForm onSave={addTrade} onBulkImport={syncTrades} />}
           {activeTab === 'history' && <TradeList trades={trades} onDelete={deleteTrade} />}
