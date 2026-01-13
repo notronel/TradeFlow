@@ -38,36 +38,6 @@ const Dashboard: React.FC<Props> = ({ metrics, trades }) => {
         </div>
       </header>
 
-      {/* Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard 
-          title="Account Balance" 
-          value={formatCurrencyPlain(metrics.currentBalance)} 
-          icon={<Wallet className="text-indigo-300" />} 
-          subValue={`Starting: ${formatCurrencyPlain(metrics.startingBalance)}`}
-          highlight={metrics.totalPnL > 0 ? 'positive' : metrics.totalPnL < 0 ? 'negative' : 'neutral'}
-        />
-        <MetricCard 
-          title="Win Rate" 
-          value={`${metrics.winRate.toFixed(1)}%`} 
-          icon={<Target className="text-emerald-300" />} 
-          subValue={`${metrics.totalTrades} Total Trades`}
-        />
-        <MetricCard 
-          title="Avg Win / Loss" 
-          value={`${formatCurrency(metrics.avgWin)} / ${formatCurrency(metrics.avgLoss)}`} 
-          icon={<BarChart3 className="text-amber-300" />}
-          subValue={`Profit Factor: ${metrics.profitFactor.toFixed(2)}`}
-        />
-        <MetricCard 
-          title="Consistency" 
-          value={`${metrics.consistencyPct.toFixed(1)}%`} 
-          icon={metrics.isConsistent ? <ShieldCheck className="text-emerald-300" /> : <ShieldAlert className="text-rose-300" />}
-          subValue={metrics.isConsistent ? "Within 40% rule" : "Breaches 40% rule"}
-          highlight={metrics.isConsistent ? 'positive' : 'negative'}
-        />
-      </div>
-
       {/* Chart Section */}
       <div className="bg-gray-700 border border-gray-500 rounded-xl p-6 shadow-xl">
         <div className="flex justify-between items-center mb-6">
@@ -112,6 +82,36 @@ const Dashboard: React.FC<Props> = ({ metrics, trades }) => {
             </AreaChart>
           </ResponsiveContainer>
         </div>
+      </div>
+
+      {/* Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard 
+          title="Account Balance" 
+          value={formatCurrencyPlain(metrics.currentBalance)} 
+          icon={<Wallet className="text-indigo-300" />} 
+          subValue={`Starting: ${formatCurrencyPlain(metrics.startingBalance)}`}
+          highlight={metrics.totalPnL > 0 ? 'positive' : metrics.totalPnL < 0 ? 'negative' : 'neutral'}
+        />
+        <MetricCard 
+          title="Win Rate" 
+          value={`${metrics.winRate.toFixed(1)}%`} 
+          icon={<Target className="text-emerald-300" />} 
+          subValue={`${metrics.totalTrades} Total Trades`}
+        />
+        <MetricCard 
+          title="Avg Win / Loss" 
+          value={`${formatCurrency(metrics.avgWin)} / ${formatCurrency(metrics.avgLoss)}`} 
+          icon={<BarChart3 className="text-amber-300" />}
+          subValue={`Profit Factor: ${metrics.profitFactor.toFixed(2)}`}
+        />
+        <MetricCard 
+          title="Consistency" 
+          value={`${metrics.consistencyPct.toFixed(1)}%`} 
+          icon={metrics.isConsistent ? <ShieldCheck className="text-emerald-300" /> : <ShieldAlert className="text-rose-300" />}
+          subValue={metrics.isConsistent ? "Within 40% rule" : "Breaches 40% rule"}
+          highlight={metrics.isConsistent ? 'positive' : 'negative'}
+        />
       </div>
     </div>
   );

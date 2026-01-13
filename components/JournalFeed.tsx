@@ -33,6 +33,14 @@ const JournalFeed: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
   const editorRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLDivElement>(null);
 
+  // Helper to generate a consistent "YYYY-MM-DD" key based on LOCAL time
+  const getLocalDateKey = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
   // Group trades by day for the feed
   const dailyGroups = useMemo(() => {
     const groups: Record<string, { pnl: number, count: number, journalEntry?: Trade, trades: Trade[] }> = {};
@@ -41,7 +49,8 @@ const JournalFeed: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
     );
 
     sortedTrades.forEach(t => {
-      const date = new Date(t.entryDate).toISOString().split('T')[0];
+      // Use local date key to avoid grouping night trades into next day UTC
+      const date = getLocalDateKey(new Date(t.entryDate));
       if (!groups[date]) groups[date] = { pnl: 0, count: 0, trades: [] };
       
       if (t.symbol === 'JOURNAL') {
@@ -71,6 +80,11 @@ const JournalFeed: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
         onUpdateEntry({ ...original, tradingPlan: content });
       }
     } else {
+      // Create new entry for "Today" (Local)
+      const today = new Date();
+      // Use Local Noon to ensure consistency across the app
+      const entryDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0, 0).toISOString();
+      
       const newEntry: Trade = {
         id: crypto.randomUUID(),
         symbol: 'JOURNAL',
@@ -82,7 +96,7 @@ const JournalFeed: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
         pnl: 0,
         fees: 0,
         riskAmount: 0,
-        entryDate: new Date().toISOString(),
+        entryDate: entryDate,
         tradingPlan: content,
         analysis: '',
         results: '',
@@ -190,9 +204,11 @@ const JournalFeed: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
             <div className="bg-gray-700 border border-gray-600 rounded-3xl overflow-hidden shadow-xl">
               <div className="flex flex-col md:flex-row items-stretch md:items-center border-b border-gray-600">
                 <div className="bg-gray-800 p-6 flex flex-col items-center justify-center min-w-[140px] border-r border-gray-600">
-                  <span className="text-2xl font-black text-white">{new Date(date).getDate()}</span>
+                  {/* Manually extract Day to avoid UTC shift */}
+                  <span className="text-2xl font-black text-white">{date.split('-')[2]}</span>
                   <span className="text-[10px] font-black uppercase tracking-widest text-indigo-300">
-                    {new Date(date).toLocaleString('default', { month: 'short', year: 'numeric' })}
+                    {/* Construct date object from YYYY-MM-DD + T12:00:00 to get correct local month */}
+                    {new Date(date + 'T12:00:00').toLocaleString('default', { month: 'short', year: 'numeric' })}
                   </span>
                 </div>
                 

@@ -10,6 +10,11 @@ interface Props {
 
 const TradeForm: React.FC<Props> = ({ onSave, onBulkImport }) => {
   const [activeMode, setActiveMode] = useState<'MANUAL' | 'BULK'>('MANUAL');
+  
+  // Initialize with correct Local Date String (YYYY-MM-DD)
+  const today = new Date();
+  const localDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
   const [formData, setFormData] = useState<Partial<Trade>>({
     symbol: '',
     side: 'LONG',
@@ -19,7 +24,7 @@ const TradeForm: React.FC<Props> = ({ onSave, onBulkImport }) => {
     quantity: 0,
     riskAmount: 0,
     fees: 0,
-    entryDate: new Date().toISOString().split('T')[0],
+    entryDate: localDate,
     tradingPlan: '',
     analysis: '',
     results: '',
@@ -32,9 +37,14 @@ const TradeForm: React.FC<Props> = ({ onSave, onBulkImport }) => {
       ? (Number(formData.exitPrice) - Number(formData.entryPrice)) * Number(formData.quantity)
       : (Number(formData.entryPrice) - Number(formData.exitPrice)) * Number(formData.quantity);
 
+    // Ensure we save the date as "Noon" local time, so it remains in the correct day bucket
+    // regardless of small timezone shifts when converted to ISO.
+    const dateObj = new Date(formData.entryDate + 'T12:00:00');
+    
     const newTrade: Trade = {
       ...(formData as Trade),
       id: crypto.randomUUID(),
+      entryDate: dateObj.toISOString(),
       pnl: pnl - (formData.fees || 0),
     };
 

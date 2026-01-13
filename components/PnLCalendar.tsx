@@ -45,6 +45,14 @@ const PnLCalendar: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
   const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
   const firstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
 
+  // Helper to generate a consistent "YYYY-MM-DD" key based on LOCAL time
+  const getLocalDateKey = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
   // Reset editing state when a new date is selected
   useEffect(() => {
     setIsEditing(false);
@@ -56,7 +64,9 @@ const PnLCalendar: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
     const sorted = [...trades].sort((a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime());
 
     sorted.forEach(trade => {
-      const dateStr = new Date(trade.entryDate).toISOString().split('T')[0];
+      // Use local date key to ensure trades made at 10PM don't show up on next day (UTC)
+      const dateStr = getLocalDateKey(new Date(trade.entryDate));
+      
       if (!map[dateStr]) {
         map[dateStr] = { pnl: 0, count: 0, risk: 0, wins: 0 };
       }
@@ -86,7 +96,7 @@ const PnLCalendar: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
     const weeklyMap: Record<number, number> = {};
     for (let day = 1; day <= totalDays; day++) {
       const date = new Date(year, month, day);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = getLocalDateKey(date);
       const data = dailyDataMap[dateStr];
       
       const firstDay = new Date(year, month, 1).getDay();
@@ -139,6 +149,8 @@ const PnLCalendar: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
     if (existingEntry) {
       onUpdateEntry({ ...existingEntry, tradingPlan: content });
     } else {
+      // Force Local Noon to ensure dates don't shift when converting to ISO
+      const entryDate = new Date(selectedDateStr + 'T12:00:00').toISOString();
       const newEntry: Trade = {
         id: crypto.randomUUID(),
         symbol: 'JOURNAL',
@@ -150,7 +162,7 @@ const PnLCalendar: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
         pnl: 0,
         fees: 0,
         riskAmount: 0,
-        entryDate: new Date(selectedDateStr + 'T12:00:00').toISOString(),
+        entryDate: entryDate,
         tradingPlan: content,
         analysis: '',
         results: '',
@@ -174,7 +186,8 @@ const PnLCalendar: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
     const dayOfWeek = date.getDay();
     if (dayOfWeek === 6) continue;
 
-    const dateStr = date.toISOString().split('T')[0];
+    // Use local key to match map
+    const dateStr = getLocalDateKey(date);
     const data = dailyDataMap[dateStr];
     const isSelected = selectedDateStr === dateStr;
     const winRate = data && data.count > 0 ? Math.round((data.wins / data.count) * 100) : 0;
@@ -291,10 +304,11 @@ const PnLCalendar: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
           <div className="bg-gray-800 px-8 py-6 border-b border-gray-600 flex justify-between items-center">
             <div className="flex items-center gap-4">
                <div className="w-10 h-10 bg-indigo-900/50 rounded-xl flex items-center justify-center text-indigo-300 font-black border border-indigo-500/20">
-                {new Date(selectedDateStr).getDate()}
+                {/* Use selectedDateStr components directly to avoid timezone shift in display */}
+                {selectedDateStr.split('-')[2]}
               </div>
               <h3 className="text-xl font-bold text-white">
-                {new Date(selectedDateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                {new Date(selectedDateStr + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
               </h3>
             </div>
             <button onClick={() => setSelectedDateStr(null)} className="text-white hover:text-white text-xs font-bold uppercase tracking-widest">Close</button>
