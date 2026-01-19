@@ -34,6 +34,7 @@ export class TradovateService {
     return [
       {
         id: crypto.randomUUID(),
+        accountId: 'import_placeholder',
         externalId: "tv_fill_9921",
         symbol: "ESZ4",
         side: "LONG",

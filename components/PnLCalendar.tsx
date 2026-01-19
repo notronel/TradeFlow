@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Trade } from '../types';
 import { formatCurrency, formatCurrencyPlain } from '../utils/calculations';
@@ -153,6 +154,7 @@ const PnLCalendar: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
       const entryDate = new Date(selectedDateStr + 'T12:00:00').toISOString();
       const newEntry: Trade = {
         id: crypto.randomUUID(),
+        accountId: trades[0]?.accountId || 'default_account',
         symbol: 'JOURNAL',
         side: 'LONG',
         status: 'CLOSED',

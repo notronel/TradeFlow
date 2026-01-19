@@ -2,8 +2,16 @@
 export type TradeSide = 'LONG' | 'SHORT';
 export type TradeStatus = 'OPEN' | 'CLOSED';
 
+export interface Account {
+  id: string;
+  name: string;
+  startingBalance: number;
+  isArchived?: boolean;
+}
+
 export interface Trade {
   id: string;
+  accountId: string; // Link to specific PA account
   symbol: string;
   side: TradeSide;
   status: TradeStatus;

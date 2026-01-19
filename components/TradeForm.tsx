@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
-import { Trade, TradeSide, TradeStatus } from '../types';
-import { Save, X, Info, FileSpreadsheet, Keyboard } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Trade, TradeSide, TradeStatus, Account } from '../types';
+import { Save, X, Info, FileSpreadsheet, Keyboard, Briefcase } from 'lucide-react';
 import CsvImport from './CsvImport';
 
 interface Props {
+  accounts: Account[];
+  activeAccountId: string;
   onSave: (trade: Trade) => void;
   onBulkImport: (trades: Trade[]) => number;
 }
 
-const TradeForm: React.FC<Props> = ({ onSave, onBulkImport }) => {
+const TradeForm: React.FC<Props> = ({ accounts, activeAccountId, onSave, onBulkImport }) => {
   const [activeMode, setActiveMode] = useState<'MANUAL' | 'BULK'>('MANUAL');
   
   // Initialize with correct Local Date String (YYYY-MM-DD)
@@ -16,6 +18,7 @@ const TradeForm: React.FC<Props> = ({ onSave, onBulkImport }) => {
   const localDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
   const [formData, setFormData] = useState<Partial<Trade>>({
+    accountId: activeAccountId === 'ALL' ? accounts[0]?.id : activeAccountId,
     symbol: '',
     side: 'LONG',
     status: 'CLOSED',
@@ -31,14 +34,20 @@ const TradeForm: React.FC<Props> = ({ onSave, onBulkImport }) => {
     lessons: '',
   });
 
+  // Update form account if global selection changes
+  useEffect(() => {
+    if (activeAccountId !== 'ALL') {
+      setFormData(prev => ({ ...prev, accountId: activeAccountId }));
+    }
+  }, [activeAccountId]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const pnl = formData.side === 'LONG' 
       ? (Number(formData.exitPrice) - Number(formData.entryPrice)) * Number(formData.quantity)
       : (Number(formData.entryPrice) - Number(formData.exitPrice)) * Number(formData.quantity);
 
-    // Ensure we save the date as "Noon" local time, so it remains in the correct day bucket
-    // regardless of small timezone shifts when converted to ISO.
+    // Ensure we save the date as "Noon" local time
     const dateObj = new Date(formData.entryDate + 'T12:00:00');
     
     const newTrade: Trade = {
@@ -94,6 +103,24 @@ const TradeForm: React.FC<Props> = ({ onSave, onBulkImport }) => {
                 <span className="w-6 h-px bg-indigo-500/50"></span>
                 Execution Details
               </h3>
+
+              {/* Account Selector */}
+              <div>
+                 <label className="block text-[10px] font-bold text-white uppercase tracking-widest mb-2">Target Account</label>
+                 <div className="relative">
+                   <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                   <select 
+                     className="w-full bg-gray-800 border border-gray-600 rounded-xl pl-11 pr-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 text-white appearance-none"
+                     value={formData.accountId}
+                     onChange={e => setFormData({...formData, accountId: e.target.value})}
+                   >
+                     {accounts.map(acc => (
+                       <option key={acc.id} value={acc.id}>{acc.name}</option>
+                     ))}
+                   </select>
+                   <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">▼</div>
+                 </div>
+              </div>
               
               <div className="space-y-4">
                 <div>

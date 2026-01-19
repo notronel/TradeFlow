@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import Papa from 'papaparse';
 import { Trade, TradeSide } from '../types';
@@ -100,6 +101,7 @@ const CsvImport: React.FC<Props> = ({ onImport }) => {
 
             return {
               id: crypto.randomUUID(),
+              accountId: 'import_placeholder',
               symbol: symbol.toString(),
               side,
               status: 'CLOSED',

@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Trade } from '../types';
 import { formatCurrencyPlain } from '../utils/calculations';
@@ -87,6 +88,7 @@ const JournalFeed: React.FC<Props> = ({ trades, onAddEntry, onUpdateEntry }) => 
       
       const newEntry: Trade = {
         id: crypto.randomUUID(),
+        accountId: trades[0]?.accountId || 'default_account',
         symbol: 'JOURNAL',
         side: 'LONG',
         status: 'CLOSED',
