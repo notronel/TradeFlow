@@ -234,32 +234,34 @@ const App: React.FC = () => {
             </button>
             
             {/* Dropdown Menu (Visible on Hover/Focus) */}
-            <div className="absolute top-full left-0 w-full mt-2 bg-gray-700 border border-gray-500 rounded-xl shadow-2xl p-2 hidden group-hover:block z-50">
-              <button 
-                onClick={() => setActiveAccountId('ALL')}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-2 ${activeAccountId === 'ALL' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-600'}`}
-              >
-                <div className="w-2 h-2 rounded-full bg-white"></div>
-                All Portfolios
-              </button>
-              <div className="my-2 border-t border-gray-600"></div>
-              {accounts.map(acc => (
+            <div className="absolute top-full left-0 w-full pt-2 hidden group-hover:block z-50">
+              <div className="bg-gray-700 border border-gray-500 rounded-xl shadow-2xl p-2">
                 <button 
-                  key={acc.id}
-                  onClick={() => setActiveAccountId(acc.id)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 mb-1 ${activeAccountId === acc.id ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-600'}`}
+                  onClick={() => setActiveAccountId('ALL')}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-2 ${activeAccountId === 'ALL' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-600'}`}
                 >
-                  <div className={`w-2 h-2 rounded-full ${activeAccountId === acc.id ? 'bg-emerald-400' : 'bg-gray-500'}`}></div>
-                  {acc.name}
+                  <div className="w-2 h-2 rounded-full bg-white"></div>
+                  All Portfolios
                 </button>
-              ))}
-              <button 
-                onClick={() => setShowAccountModal(true)}
-                className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-indigo-300 hover:text-white hover:bg-indigo-900/50 flex items-center gap-2 mt-2"
-              >
-                <PlusCircle size={12} />
-                Add Account
-              </button>
+                <div className="my-2 border-t border-gray-600"></div>
+                {accounts.map(acc => (
+                  <button 
+                    key={acc.id}
+                    onClick={() => setActiveAccountId(acc.id)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 mb-1 ${activeAccountId === acc.id ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-600'}`}
+                  >
+                    <div className={`w-2 h-2 rounded-full ${activeAccountId === acc.id ? 'bg-emerald-400' : 'bg-gray-500'}`}></div>
+                    {acc.name}
+                  </button>
+                ))}
+                <button 
+                  onClick={() => setShowAccountModal(true)}
+                  className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-indigo-300 hover:text-white hover:bg-indigo-900/50 flex items-center gap-2 mt-2"
+                >
+                  <PlusCircle size={12} />
+                  Add Account
+                </button>
+              </div>
             </div>
           </div>
         </div>
