@@ -130,6 +130,26 @@ const App: React.FC = () => {
     setShowAccountModal(false);
   };
 
+  const deleteAccount = (accountId: string, accountName: string) => {
+    if (accounts.length <= 1) {
+      alert("You cannot delete the only remaining portfolio. Use Reset if you wish to clear everything.");
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to permanently delete "${accountName}"? All trades associated with this portfolio will be lost.`)) {
+      // 1. Remove associated trades
+      setTrades(prev => prev.filter(t => t.accountId !== accountId));
+
+      // 2. Remove the account
+      setAccounts(prev => prev.filter(a => a.id !== accountId));
+
+      // 3. Switch view if currently active
+      if (activeAccountId === accountId) {
+        setActiveAccountId('ALL');
+      }
+    }
+  };
+
   const updateAccountBalance = (newBalance: number) => {
     if (activeAccountId === 'ALL') return; // Can't update aggregate directly
     setAccounts(prev => prev.map(a => a.id === activeAccountId ? { ...a, startingBalance: newBalance } : a));
@@ -247,22 +267,33 @@ const App: React.FC = () => {
               <div className="bg-gray-700 border border-gray-500 rounded-xl shadow-2xl p-2">
                 <button 
                   onClick={() => setActiveAccountId('ALL')}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-2 ${activeAccountId === 'ALL' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-600'}`}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-2 mb-2 ${activeAccountId === 'ALL' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-600'}`}
                 >
                   <div className="w-2 h-2 rounded-full bg-white"></div>
                   All Portfolios
                 </button>
-                <div className="my-2 border-t border-gray-600"></div>
-                {accounts.map(acc => (
-                  <button 
-                    key={acc.id}
-                    onClick={() => setActiveAccountId(acc.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 mb-1 ${activeAccountId === acc.id ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-600'}`}
-                  >
-                    <div className={`w-2 h-2 rounded-full ${activeAccountId === acc.id ? 'bg-emerald-400' : 'bg-gray-500'}`}></div>
-                    {acc.name}
-                  </button>
-                ))}
+                
+                <div className="border-t border-gray-600 my-1 pt-1 space-y-1">
+                  {accounts.map(acc => (
+                    <div key={acc.id} className={`flex items-center rounded-lg overflow-hidden group/item ${activeAccountId === acc.id ? 'bg-indigo-600' : 'hover:bg-gray-600'}`}>
+                      <button 
+                        onClick={() => setActiveAccountId(acc.id)}
+                        className={`flex-1 text-left px-3 py-2 text-sm font-medium flex items-center gap-2 ${activeAccountId === acc.id ? 'text-white' : 'text-gray-300'}`}
+                      >
+                        <div className={`w-2 h-2 shrink-0 rounded-full ${activeAccountId === acc.id ? 'bg-emerald-400' : 'bg-gray-500'}`}></div>
+                        <span className="truncate">{acc.name}</span>
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); deleteAccount(acc.id, acc.name); }}
+                        className={`px-2 py-2 text-gray-400 hover:text-rose-400 hover:bg-rose-900/30 transition-colors opacity-0 group-hover/item:opacity-100 ${activeAccountId === acc.id ? 'text-indigo-300 opacity-100' : ''}`}
+                        title="Delete Portfolio"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
                 <button 
                   onClick={() => setShowAccountModal(true)}
                   className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-indigo-300 hover:text-white hover:bg-indigo-900/50 flex items-center gap-2 mt-2"
