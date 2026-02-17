@@ -75,6 +75,13 @@ const App: React.FC = () => {
     localStorage.setItem('tradeflow_accounts', JSON.stringify(accounts));
   }, [accounts]);
 
+  // --- Safety Check: Ensure Active Account Exists ---
+  useEffect(() => {
+    if (activeAccountId !== 'ALL' && !accounts.find(a => a.id === activeAccountId)) {
+      setActiveAccountId('ALL');
+    }
+  }, [accounts, activeAccountId]);
+
   // --- Computed Data ---
   const activeAccount = useMemo(() => 
     activeAccountId === 'ALL' ? null : accounts.find(a => a.id === activeAccountId)
@@ -143,7 +150,7 @@ const App: React.FC = () => {
       // 2. Remove the account
       setAccounts(prev => prev.filter(a => a.id !== accountId));
 
-      // 3. Switch view if currently active
+      // 3. Switch view if currently active (handled by useEffect, but good for immediate feedback)
       if (activeAccountId === accountId) {
         setActiveAccountId('ALL');
       }
@@ -284,7 +291,12 @@ const App: React.FC = () => {
                         <span className="truncate">{acc.name}</span>
                       </button>
                       <button 
-                        onClick={(e) => { e.stopPropagation(); deleteAccount(acc.id, acc.name); }}
+                        type="button"
+                        onClick={(e) => { 
+                          e.preventDefault(); 
+                          e.stopPropagation(); 
+                          deleteAccount(acc.id, acc.name); 
+                        }}
                         className={`px-2 py-2 text-gray-400 hover:text-rose-400 hover:bg-rose-900/30 transition-colors opacity-0 group-hover/item:opacity-100 ${activeAccountId === acc.id ? 'text-indigo-300 opacity-100' : ''}`}
                         title="Delete Portfolio"
                       >
