@@ -167,12 +167,21 @@ const App: React.FC = () => {
 
   const clearAllTrades = () => {
     if (window.confirm("Are you sure you want to clear ALL data? This includes all accounts and trades.")) {
+      const defaultAccount: Account = { 
+        id: 'default_account', 
+        name: 'Main Portfolio', 
+        startingBalance: 0 
+      };
+      
       setTrades([]);
-      setAccounts([{ id: 'default', name: 'Main Portfolio', startingBalance: 0 }]);
-      setActiveAccountId('default');
+      setAccounts([defaultAccount]);
+      setActiveAccountId('default_account');
+      
+      // Clear persistence immediately
       localStorage.removeItem('tradeflow_trades');
       localStorage.removeItem('tradeflow_accounts');
-      localStorage.removeItem('tradeflow_balance'); // cleanup legacy
+      localStorage.removeItem('tradeflow_balance'); 
+      
       setActiveTab('dashboard');
     }
   };
