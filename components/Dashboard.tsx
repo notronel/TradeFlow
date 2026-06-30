@@ -175,7 +175,7 @@ const Dashboard: React.FC<Props> = ({
         </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
+      <div className="mx-auto grid max-w-4xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <MetricTile
           title="PNL"
           icon={<Wallet size={20} />}
@@ -222,7 +222,7 @@ const Dashboard: React.FC<Props> = ({
               <ProgressLabel label="Fail buffer" value={formatCurrencyPlain(evaluation.failDistance)} />
               <ProgressBar value={evaluation.failBufferProgress} tone={evaluation.isFailed ? 'negative' : 'warning'} />
             </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
               <NumberField
                 label="Target"
                 value={evaluationConfig.targetProfit}
@@ -233,17 +233,12 @@ const Dashboard: React.FC<Props> = ({
                 value={evaluationConfig.maxLoss}
                 onChange={value => updateEvaluationConfig('maxLoss', value)}
               />
-              <NumberField
-                label="Basis"
-                value={evaluationConfig.startingBalance}
-                onChange={value => updateEvaluationConfig('startingBalance', value)}
-              />
             </div>
           </div>
         </MetricTile>
       </div>
 
-      <section className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 md:p-6">
+      <section className="mx-auto max-w-4xl rounded-xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 md:p-6">
         <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
@@ -278,7 +273,7 @@ const Dashboard: React.FC<Props> = ({
           </div>
         </div>
 
-        <div className="mx-auto grid max-w-5xl grid-cols-7 gap-2 text-center">
+        <div className="mx-auto grid max-w-4xl grid-cols-7 gap-2 text-center">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
             <div key={day} className="py-1 text-[10px] font-black uppercase tracking-widest text-neutral-400 dark:text-neutral-600">
               {day}
@@ -435,7 +430,7 @@ const MetricTile: React.FC<{
   tone: 'positive' | 'negative' | 'warning' | 'neutral';
   children: React.ReactNode;
 }> = ({ title, icon, value, subValue, tone, children }) => (
-  <section className={`min-h-[60px] rounded-xl border bg-white p-2 shadow-sm dark:bg-neutral-900 ${toneClass(tone, 'border')}`}>
+  <section className={`aspect-square min-h-[180px] rounded-xl border bg-white p-3 shadow-sm dark:bg-neutral-900 ${toneClass(tone, 'border')}`}>
     <div className="mb-1.5 flex items-start justify-between gap-2">
       <div>
         <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500">{title}</p>

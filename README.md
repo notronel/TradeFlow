@@ -1,20 +1,62 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# TradeFlow Pro
 
-# Run and deploy your AI Studio app
+TradeFlow Pro is a trading journal and performance tracker built with React, Vite, and TypeScript. It is designed to help traders review daily execution, monitor account progress, and keep evaluation rules visible in one place.
 
-This contains everything you need to run your app locally.
+## What it does
 
-View your app in AI Studio: https://ai.studio/apps/drive/16U0JjvCWGWU-GXb-myV-Nq7u30ti_8gR
+- Overview dashboard with a compact monthly calendar
+- Daily trade review notes and image uploads
+- PnL, consistency, and evaluation progress tiles
+- Performance page with trade expectancy, win/loss mix, trade count, average trade time, and PnL distribution views
+- Trade entry, history, import, and integration screens
+- Local persistence for journal notes and evaluation settings
+- Dark mode and light mode support based on system preference
 
-## Run Locally
+## Tech Stack
 
-**Prerequisites:**  Node.js
+- React 19
+- Vite
+- TypeScript
+- Tailwind utility classes
+- Lucide icons
+- Recharts for charting
 
+## Getting Started
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Prerequisites
+
+- Node.js 18 or newer
+
+### Install
+
+```bash
+npm install
+```
+
+### Run locally
+
+```bash
+npm run dev
+```
+
+### Build for production
+
+```bash
+npm run build
+```
+
+### Preview the production build
+
+```bash
+npm run preview
+```
+
+## Configuration
+
+The app reads `GEMINI_API_KEY` from [.env.local](.env.local) for AI-powered features. If you do not use those features, the rest of the app still runs normally.
+
+## Notes
+
+- Calendar and review data persist in the browser via localStorage.
+- Evaluation targets are editable in the dashboard and also persist locally.
+- The app is intended to run as a local trading journal, not as a multi-user backend service.
