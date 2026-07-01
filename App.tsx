@@ -263,7 +263,7 @@ const App: React.FC = () => {
           {activeTab === 'journal' && <JournalFeed trades={trades} onAddEntry={addTrade} onUpdateEntry={updateTrade} />}
           {activeTab === 'add' && <TradeForm onSave={addTrade} onBulkImport={syncTrades} />}
           {activeTab === 'history' && <TradeList trades={trades} onDelete={deleteTrade} />}
-          {activeTab === 'ai' && <AiInsights trades={trades} />}
+          {activeTab === 'ai' && <AiInsights trades={trades} metrics={metrics} evaluationConfig={evaluationConfig} />}
           {activeTab === 'integrations' && <Integrations onSync={syncTrades} />}
         </div>
       </main>

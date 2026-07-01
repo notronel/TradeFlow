@@ -11,6 +11,7 @@ TradeFlow Pro is a trading journal and performance tracker built with React, Vit
 - Trade entry, history, import, and integration screens
 - Local persistence for journal notes and evaluation settings
 - Dark mode and light mode support based on system preference
+- OpenAI-powered AI coach for trade review and performance feedback
 
 ## Tech Stack
 
@@ -53,7 +54,7 @@ npm run preview
 
 ## Configuration
 
-The app reads `GEMINI_API_KEY` from [.env.local](.env.local) for AI-powered features. If you do not use those features, the rest of the app still runs normally.
+The app reads `OPENAI_API_KEY` from [.env.local](.env.local) for AI-powered features. If you do not use those features, the rest of the app still runs normally.
 
 ## Notes
 
