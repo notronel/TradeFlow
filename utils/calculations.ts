@@ -43,8 +43,8 @@ export interface BellCurvePoint {
 export const calculateMetrics = (trades: Trade[], startingBalance: number = 0): TradingMetrics => {
   const closedTrades = trades.filter(t => t.status === 'CLOSED');
   
-  // Sum PnL and subtract fees, rounding to 2 decimals
-  const rawPnL = closedTrades.reduce((acc, t) => acc + (t.pnl - (t.fees || 0)), 0);
+  // Normalize trade PnL so legacy "net PnL" records and gross records both work.
+  const rawPnL = closedTrades.reduce((acc, t) => acc + getTradeNetPnL(t), 0);
   const totalPnL = Math.round(rawPnL * 100) / 100;
   const currentBalance = startingBalance + totalPnL;
 
@@ -66,8 +66,8 @@ export const calculateMetrics = (trades: Trade[], startingBalance: number = 0): 
   const wins = closedTrades.filter(t => t.pnl > 0);
   const losses = closedTrades.filter(t => t.pnl <= 0);
 
-  const totalWinAmount = wins.reduce((acc, t) => acc + (t.pnl - (t.fees || 0)), 0);
-  const totalLossAmountRaw = losses.reduce((acc, t) => acc + (t.pnl - (t.fees || 0)), 0);
+  const totalWinAmount = wins.reduce((acc, t) => acc + getTradeNetPnL(t), 0);
+  const totalLossAmountRaw = losses.reduce((acc, t) => acc + getTradeNetPnL(t), 0);
   const totalLossAmountAbs = Math.abs(totalLossAmountRaw);
 
   const avgWin = wins.length > 0 ? totalWinAmount / wins.length : 0;
@@ -106,7 +106,37 @@ export const calculateMetrics = (trades: Trade[], startingBalance: number = 0): 
   };
 };
 
-export const getTradeNetPnL = (trade: Trade): number => trade.pnl - (trade.fees || 0);
+export const getTradeNetPnL = (trade: Trade): number => {
+  const fees = trade.fees || 0;
+  const grossFromPrice = getGrossPnLFromPrices(trade);
+
+  if (grossFromPrice === null) {
+    return Math.round(trade.pnl * 100) / 100;
+  }
+
+  const stored = roundMoney(trade.pnl);
+  const grossCandidate = roundMoney(grossFromPrice);
+  const netCandidate = roundMoney(grossCandidate - fees);
+
+  const looksGross = nearlyEqual(stored, grossCandidate);
+  const looksNet = nearlyEqual(stored, netCandidate);
+
+  if (looksGross && !looksNet) {
+    return netCandidate;
+  }
+
+  if (looksNet && !looksGross) {
+    return stored;
+  }
+
+  if (looksGross && looksNet) {
+    return fees > 0 ? netCandidate : stored;
+  }
+
+  return trade.source === 'CSV' || trade.source === 'TRADOVATE'
+    ? netCandidate
+    : stored;
+};
 
 export const calculateDailyPnL = (trades: Trade[]): Record<string, DailyPnLData> => {
   return trades
@@ -202,6 +232,23 @@ export const calculatePerformanceMetrics = (trades: Trade[]): PerformanceMetrics
     netPnL: totalPnL,
   };
 };
+
+const getGrossPnLFromPrices = (trade: Trade): number | null => {
+  const entryPrice = Number(trade.entryPrice);
+  const exitPrice = Number(trade.exitPrice);
+  const quantity = Number(trade.quantity);
+
+  if (!Number.isFinite(entryPrice) || !Number.isFinite(exitPrice) || !Number.isFinite(quantity) || quantity <= 0) {
+    return null;
+  }
+
+  const direction = trade.side === 'SHORT' ? -1 : 1;
+  return (exitPrice - entryPrice) * quantity * direction;
+};
+
+const roundMoney = (value: number) => Math.round(value * 100) / 100;
+
+const nearlyEqual = (left: number, right: number, tolerance = 0.01) => Math.abs(left - right) <= tolerance;
 
 export const buildPnLBellCurve = (trades: Trade[], bins = 8): BellCurvePoint[] => {
   const closedTrades = trades.filter(t => t.status === 'CLOSED');
