@@ -100,14 +100,27 @@ const App: React.FC = () => {
   };
 
   const syncTrades = (newTrades: Trade[]) => {
-    const existingIds = new Set(trades.map(t => t.externalId).filter(Boolean));
-    const uniqueNewTrades = newTrades.filter(t => !existingIds.has(t.externalId));
-    
-    if (uniqueNewTrades.length > 0) {
-      setTrades(prev => [...uniqueNewTrades, ...prev]);
-      return uniqueNewTrades.length;
-    }
-    return 0;
+    let importedCount = 0;
+
+    setTrades(prev => {
+      const existingKeys = new Set(prev.map(getTradeDedupKey));
+      const batchKeys = new Set<string>();
+      const uniqueNewTrades = newTrades.filter(trade => {
+        const key = getTradeDedupKey(trade);
+        if (batchKeys.has(key) || existingKeys.has(key)) {
+          return false;
+        }
+
+        batchKeys.add(key);
+        existingKeys.add(key);
+        return true;
+      });
+
+      importedCount = uniqueNewTrades.length;
+      return importedCount > 0 ? [...uniqueNewTrades, ...prev] : prev;
+    });
+
+    return importedCount;
   };
 
   const deleteTrade = (id: string) => {
@@ -295,5 +308,26 @@ const NavButton: React.FC<NavButtonProps> = ({ active, onClick, icon, label, col
     <span className={`font-semibold text-sm ${collapsed ? 'md:hidden' : ''}`}>{label}</span>
   </button>
 );
+
+const getTradeDedupKey = (trade: Trade) => {
+  if (trade.externalId) {
+    return `external:${trade.externalId.trim().toLowerCase()}`;
+  }
+
+  return [
+    trade.symbol.trim().toLowerCase(),
+    trade.side,
+    trade.status,
+    trade.entryDate,
+    trade.exitDate ?? '',
+    trade.entryPrice,
+    trade.exitPrice,
+    trade.quantity,
+    trade.pnl,
+    trade.fees,
+    trade.riskAmount,
+    trade.source ?? 'MANUAL',
+  ].join('|');
+};
 
 export default App;
